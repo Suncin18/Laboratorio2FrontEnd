@@ -1,0 +1,105 @@
+<div class="container-fluid p-4">
+
+    @if (authService.isSuperAdmin()){
+        <h2 class="mb-0">Administración de categorias</h2>
+        <div class="mb-3">
+            <button type="button" class="btn btn-primary" (click)="openCreateForm()">Nueva categoría</button>
+        </div>
+    } @else {
+        <h2 class="mb-0">Lista de categorias</h2>
+    }
+
+    @if (successMessage()) {
+        <div class="alert alert-success" role="alert">{{ successMessage() }}</div>
+    }
+
+    @if (authService.isSuperAdmin() && isFormVisible()) {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h3 class="h5 mb-0">{{ editingCategoryId === null ? 'Registrar categoría' : 'Editar categoría' }}</h3>
+            </div>
+
+            <div class="card-body">
+                <form (ngSubmit)="saveCategory()">
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Nombre:</label>
+                        <input id="name" name="name" type="text" [(ngModel)]="categoryForm.name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Descripción:</label>
+                        <textarea 
+                            id="description"
+                            name="description"
+                            type="text"
+                            class="form-control"
+                            [(ngModel)]="categoryForm.description"
+                            required
+                        ></textarea>
+                    </div>
+
+                    @if (formErrorMessage()) {
+                        <div class="alert alert-warning">{{ formErrorMessage() }}</div>
+                    }
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {{ editingCategoryId === null ? 'Registrar' : 'Actualizar' }}
+                        </button>
+
+                        <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (isLoading()) {
+        <div class="d-flex align-items-center gap-2">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span>Cargando categorías...</span>
+            </div>
+        </div>
+    } @else if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+    } @else if (categoryList().length === 0) {
+        <div class="alert alert-info">No hay categorías registradas.</div>
+    } @else {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <td>ID</td>
+                        <td>Nombre</td>
+                        <td>Descripción</td>
+                        <td>Productos asociados</td>
+                        @if (authService.isSuperAdmin()){
+                            <td>Acciones</td>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (category of categoryList(); track category.id){
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.description }}</td>
+                            <td>
+                                @for (product of category.products; track product.id){
+                                    <div>{{ product.name }}</div>
+                                }
+                            </td>
+                            @if (authService.isSuperAdmin()){
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="openEditForm(category)">Editar</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteCategory(category.id)">Eliminar</button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

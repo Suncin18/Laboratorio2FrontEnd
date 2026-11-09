@@ -1,0 +1,163 @@
+<div class="container-fluid p-4">
+
+    @if (authService.isSuperAdmin()){
+        <h2 class="mb-0">Administración de productos</h2>
+        <div class="mb-3">
+            <button type="button" class="btn btn-primary" (click)="openCreateForm()">
+                Nuevo producto
+            </button>
+        </div>
+    } @else {
+        <h2 class="mb-0">Lista de productos</h2>
+    }
+
+    @if (successMessage()) {
+        <div class="alert alert-success" role="alert">
+            {{ successMessage() }}
+        </div>
+    }
+
+    @if (authService.isSuperAdmin() && isFormVisible()) {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h3 class="h5 mb-0">{{ editingProductId === null ? 'Registrar producto' : 'Editar producto' }}</h3>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form (ngSubmit)="saveProduct()">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre:</label>
+                    <input id="name" name="name" type="text" class="form-control" [(ngModel)]="productForm.name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descripción:</label>
+                    <textarea 
+                        id="description"
+                        name="description"
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="productForm.description"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Precio:</label>
+                        <input
+                            id="price"
+                            name="price"
+                            type="number"
+                            class="form-control"
+                            min="0"
+                            step="0.01"
+                            [(ngModel)]="productForm.price"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="stock" class="form-label">Inventario:</label>
+                        <input
+                            id="stock"
+                            name="stock"
+                            type="number"
+                            class="form-control"
+                            min="0"
+                            step="1"
+                            [(ngModel)]="productForm.stock"
+                            required
+                        >
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Categoría:</label>
+                    <select id="category" name="category" class="form-select" [(ngModel)]="selectedCategoryId" required>
+                        <option [ngValue]="0" disabled>Seleccione una categoría</option>
+
+                        @for (category of categoryList(); track category.id) {
+                            <option [ngValue]="category.id">{{ category.name }}</option>
+                        }
+                    </select>
+                </div>
+
+                @if (categoryList().length === 0) {
+                    <div class="alert alert-warning">
+                        No hay categorías para seleccionar
+                    </div>
+                }
+
+                @if (formErrorMessage()) {
+                    <div class="alert alert-warning">
+                        {{ formErrorMessage() }}
+                    </div>
+                }
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        {{ editingProductId === null ? 'Registrar' : 'Actualizar' }}
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
+
+    @if (isLoading()) {
+        <div class="d-flex align-items-center gap-2">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span>Cargando productos...</span>
+            </div>
+        </div>
+    } @else if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+    } @else if (productList().length === 0) {
+        <div class="alert alert-info">No hay productos registrados.</div>
+    } @else {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <td>ID</td>
+                        <td>Nombre</td>
+                        <td>Descripción</td>
+                        <td>Precio</td>
+                        <td>Inventario</td>
+                        <td>Categoría</td>
+                        @if (authService.isSuperAdmin()){
+                            <td>Acciones</td>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (product of productList(); track product.id){
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.description }}</td>
+                            <td>{{ product.price }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td>{{ product.category.name }}</td>
+                            @if (authService.isSuperAdmin()){
+                                <td>
+                                    <button 
+                                        type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        (click)="openEditForm(product)">Editar</button>
+                                    
+                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteProduct(product.id)">Eliminar</button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

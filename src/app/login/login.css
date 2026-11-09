@@ -1,0 +1,33 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 320px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.login-form input {
+    padding: 10px;
+}
+
+.login-form button {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.login-form button:disabled {
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #c62828;
+}
